@@ -1,2 +1,2 @@
 # solarsystem
-Numerical simmulation of the solar solar system
+Numerical simulation of the solar system
