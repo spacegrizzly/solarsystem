@@ -23,56 +23,76 @@ def add_one(celestialbody):
     celestialbody.z_pos += 1
 
 
-def plot_(df):
+def plot(df):
     import plotly.graph_objects as go
-    template = "simple_white"
+    # template = "simple_white"
+    template = "plotly_dark"
     fig = go.Figure()
     fig.update_layout(title="",
                       xaxis_title="x (au)",
                       yaxis_title="y (au)",
                       template=template)
 
-    # Define names
+    # Define features
     names = list(df.name.unique())
+    colours = list(df.colour.unique())
     dfs = [df[df.name == u] for u in names]
 
     # Add traces
     for i, df_ in enumerate(dfs):
-        fig.add_trace(go.Scattergl(x=df_.x_pos, y=df_.y_pos,
-                                   mode='lines+markers',
-                                   name=names[i]))
+        # Add lines
+        fig.add_trace(
+            go.Scattergl(x=df_.x_pos, y=df_.y_pos,
+                         mode='lines',
+                         name=names[i],
+                         line=dict(color=colours[i], dash="solid"),
+                         # showlegend=False
+                         ))
+
+        # Add markers for the last position in the df
+        # scattergl()
+        df_ = df_.tail(1)
+        size = df_.dummy_size
+        fig.add_trace(
+            go.Scattergl(x=df_.x_pos, y=df_.y_pos,
+                         mode='markers',
+                         name=names[i],
+                         marker=dict(color=colours[i], size=size),
+                         ))
+
+    # fig.update_xaxes(range=(-10, 10))
+    # fig.update_yaxes(range=(-10, 10))
+
     fig.show()
     return 0
 
 
-def plot(df):
-    # import
+def animate(df, limiting_factor):
+    # import and define default
     import plotly.express as px
-    import plotly.io as pio
+    template = "plotly_dark"
+    colours = list(df.colour.unique())
 
-    # init
-    template = "simple_white"
-    pio.renderers.default = "browser"
+    # limit the animation time
+    df = df[df.index < np.ceil(len(df) * limiting_factor)]
 
-    df = df[df.name == "Earth"]
+    # create scatter plot
+    fig = px.scatter_3d(data_frame=df, x="x_pos", y="y_pos", z="z_pos",
+                        animation_frame="time",
+                        animation_group="name",
+                        size="dummy_size",
+                        color="name",
+                        hover_name="name",
+                        range_x=[-10, 10],
+                        range_y=[-10, 10],
+                        range_z=[-10, 10],
+                        color_discrete_sequence=colours,
+                        )
 
-    # plot
-    fig = px.scatter(x=df.x_pos, y=df.y_pos,
-                     labels=df.name.iloc[0],
-                     template=template,
-                     title="")
+    fig.update_layout(template=template)
+    fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 0.001
 
     fig.show()
-
-    # fig = px.imshow(
-    #     df[["pred_rmse", "naive_rmse", "da_rmse", "last_real_rmse", "rolling_avg_rmse"]].transpose(),
-    #     color_continuous_scale="viridis_r",
-    #     labels=dict(color="RMSE"),
-    #     zmin=10,
-    #     zmax=70,
-    #     template=template,
-    #     title="Root-mean square error (RMSE) for different benchmarks \t\t\t" + name
-    # )
 
 
 def show_df(cb_list):
@@ -118,7 +138,7 @@ def calculate_accelatation(cb, cb_all):
     a = [0., 0., 0.]
     for other_cb in other_cbs:
         diff = cb.position() - other_cb.position()
-        a +=  other_cb.mass / (np.linalg.norm(diff) * np.linalg.norm(diff)) * (diff / np.linalg.norm(diff))
+        a += other_cb.mass / (np.linalg.norm(diff) * np.linalg.norm(diff)) * (diff / np.linalg.norm(diff))
 
     a = - data.G * a
     # assign the results to the object
@@ -133,14 +153,18 @@ def main():
     # init
     pandas_wide()
 
+    # import plotly.express as px
+    # df = px.data.gapminder()
+
     # create celestial body objects with t0 data
     cbs = []
     cb_list = []
     for i in range(len(data.names)):
-    # for i in range(2):
         globals()[data.names[i]] = CelestialBody(
             data.names[i],
             data.mass[i],
+            data.dummy_sizes[i],
+            data.colour[i],
             data.position[i][0], data.position[i][1], data.position[i][2],
             data.deltav[i][0], data.deltav[i][1], data.deltav[i][2],
             0., 0., 0.
@@ -152,8 +176,8 @@ def main():
     show_df(cb_list)
 
     lst = []
-    dt = 0.1
-    for time in np.arange(0, 365, dt):
+    dt = 0.25
+    for time in np.arange(0, 100, dt):
         for cb in cbs:
             calculate_accelatation(cb, cbs)
             calculate_new_velocity(cb, dt)
@@ -162,9 +186,11 @@ def main():
             log_position(cb, lst)
 
     df = pd.DataFrame(lst)
-    print(df)
+    print(3 * "\n", df)
 
-    plot_(df)
+    # plotting options
+    plot(df)
+    animate(df, 0.25)
 
     return 0
 
