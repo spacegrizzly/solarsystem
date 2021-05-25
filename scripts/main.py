@@ -60,7 +60,9 @@ def plot(df, config, export):
     # fig.update_yaxes(range=(-10, 10))
 
     if export:
-        fig.write_html(str(pl.Path(config["path_out"], "plot.html")))
+        path_out = pl.Path(config["path_out"], "plot.html")
+        path_out.parent.mkdir(exist_ok=True)
+        fig.write_html(str(path_out))
 
     fig.show()
     return 0
@@ -94,7 +96,9 @@ def animate(df, limiting_factor, config, export):
     fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 0.001
 
     if export:
-        fig.write_html(str(pl.Path(config["path_out"], "animate.html")))
+        path_out = pl.Path(config["path_out"], "animate.html")
+        path_out.parent.mkdir(exist_ok=True)
+        fig.write_html(str(path_out))
 
     fig.show()
 
