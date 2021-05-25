@@ -1,9 +1,11 @@
-import numpy as np
 import copy
-# import utils.data_handler as dh
-import data.data as data
+import pathlib as pl
+
+from data.raw import data as data
 from utils.utils import CelestialBody
 
+from dotenv import dotenv_values
+import numpy as np
 import pandas as pd
 
 
@@ -17,13 +19,7 @@ def pandas_wide():
     pd.set_option('display.max_columns', None)
 
 
-def add_one(celestialbody):
-    celestialbody.x_pos += 1
-    celestialbody.y_pos += 1
-    celestialbody.z_pos += 1
-
-
-def plot(df):
+def plot(df, config, export):
     import plotly.graph_objects as go
     # template = "simple_white"
     template = "plotly_dark"
@@ -63,19 +59,24 @@ def plot(df):
     # fig.update_xaxes(range=(-10, 10))
     # fig.update_yaxes(range=(-10, 10))
 
+    if export:
+        fig.write_html(str(pl.Path(config["path_out"], "plot.html")))
+
     fig.show()
     return 0
 
 
-def animate(df, limiting_factor):
+def animate(df, limiting_factor, config, export):
     # import and define default
     import plotly.express as px
     template = "plotly_dark"
     colours = list(df.colour.unique())
 
-    # limit the animation time
+    # filter the data to decrease animation time
     df = df[df.index < np.ceil(len(df) * limiting_factor)]
-
+    include = ["Sun", "Mercury", "Venus", "Earth", "Mars"]
+    df = df[df.name.isin(include)]
+    range_lim = 1.4
     # create scatter plot
     fig = px.scatter_3d(data_frame=df, x="x_pos", y="y_pos", z="z_pos",
                         animation_frame="time",
@@ -83,14 +84,17 @@ def animate(df, limiting_factor):
                         size="dummy_size",
                         color="name",
                         hover_name="name",
-                        range_x=[-10, 10],
-                        range_y=[-10, 10],
-                        range_z=[-10, 10],
+                        range_x=[-range_lim, range_lim],
+                        range_y=[-range_lim, range_lim],
+                        range_z=[-range_lim, range_lim],
                         color_discrete_sequence=colours,
                         )
 
     fig.update_layout(template=template)
     fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 0.001
+
+    if export:
+        fig.write_html(str(pl.Path(config["path_out"], "animate.html")))
 
     fig.show()
 
@@ -152,9 +156,7 @@ def calculate_accelatation(cb, cb_all):
 def main():
     # init
     pandas_wide()
-
-    # import plotly.express as px
-    # df = px.data.gapminder()
+    config = dotenv_values(".env")
 
     # create celestial body objects with t0 data
     cbs = []
@@ -189,8 +191,8 @@ def main():
     print(3 * "\n", df)
 
     # plotting options
-    plot(df)
-    animate(df, 0.25)
+    plot(df, config=config, export=True)
+    animate(df, 0.25, config=config, export=True)
 
     return 0
 
