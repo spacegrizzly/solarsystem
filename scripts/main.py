@@ -19,6 +19,57 @@ def pandas_wide():
     pd.set_option('display.max_columns', None)
 
 
+def show_df(cb_list):
+    df_cb = pd.DataFrame(cb_list)
+    df_cb.index = df_cb.name
+    df_cb = df_cb.drop(columns=["name"])
+    print("\n\nInitial Parameters:\n", df_cb)
+    return 0
+
+
+def log_position(cb, lst):
+    lst.append(copy.copy(cb.__dict__))
+    return 0
+
+
+def calculate_accelatation(cb, cb_all):
+    # create list that contains all objects except cb
+    other_cbs = [item for item in cb_all if item.name != cb.name]
+
+    # calculate the acceleration
+    a = [0., 0., 0.]
+    for other_cb in other_cbs:
+        diff = cb.position() - other_cb.position()
+        a += other_cb.mass / (np.linalg.norm(diff) * np.linalg.norm(diff)) * (diff / np.linalg.norm(diff))
+
+    a = - data.G * a
+
+    # assign the results to the object
+    cb.x_acc = a[0]
+    cb.y_acc = a[1]
+    cb.z_acc = a[2]
+
+    return 0
+
+
+def integrate():
+    pass
+
+
+def calculate_new_velocity(cb, dt):
+    cb.x_deltav = cb.x_deltav + dt * cb.x_acc
+    cb.y_deltav = cb.y_deltav + dt * cb.y_acc
+    cb.z_deltav = cb.z_deltav + dt * cb.z_acc
+    return 0
+
+
+def calculate_new_position(cb, dt):
+    cb.x_pos = cb.x_pos + dt * cb.x_deltav
+    cb.y_pos = cb.y_pos + dt * cb.y_deltav
+    cb.z_pos = cb.z_pos + dt * cb.z_deltav
+    return 0
+
+
 def plot(df, config, export):
     import plotly.graph_objects as go
     # template = "simple_white"
@@ -101,60 +152,6 @@ def animate(df, limiting_factor, config, export):
         fig.write_html(str(path_out))
 
     fig.show()
-
-
-def show_df(cb_list):
-    df_cb = pd.DataFrame(cb_list)
-    df_cb.index = df_cb.name
-    df_cb = df_cb.drop(columns=["name"])
-    print("\n\nInitial Parameters:\n", df_cb)
-    return 0
-
-
-def integrate():
-    pass
-
-
-def log_position(cb, lst):
-    lst.append(copy.copy(cb.__dict__))
-    return 0
-
-
-def calculate_new_position(cb, dt):
-    cb.x_pos = cb.x_pos + dt * cb.x_deltav
-    cb.y_pos = cb.y_pos + dt * cb.y_deltav
-    cb.z_pos = cb.z_pos + dt * cb.z_deltav
-    return 0
-
-
-def calculate_new_velocity(cb, dt):
-    cb.x_deltav = cb.x_deltav + dt * cb.x_acc
-    cb.y_deltav = cb.y_deltav + dt * cb.y_acc
-    cb.z_deltav = cb.z_deltav + dt * cb.z_acc
-    return 0
-
-
-def status():
-    pass
-
-
-def calculate_accelatation(cb, cb_all):
-    # create list that contains all objects except cb
-    other_cbs = [item for item in cb_all if item.name != cb.name]
-
-    # calculate the acceleration
-    a = [0., 0., 0.]
-    for other_cb in other_cbs:
-        diff = cb.position() - other_cb.position()
-        a += other_cb.mass / (np.linalg.norm(diff) * np.linalg.norm(diff)) * (diff / np.linalg.norm(diff))
-
-    a = - data.G * a
-    # assign the results to the object
-    cb.x_acc = a[0]
-    cb.y_acc = a[1]
-    cb.z_acc = a[2]
-
-    return 0
 
 
 def main():
