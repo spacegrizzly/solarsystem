@@ -32,57 +32,14 @@ position = [
 
 # the velocity [v_x, v_y, v_z] of the individual celestial bodies
 deltav = [
-    [6.0453208e-06, -1.8980631e-06, -1.3060634e-07],  # /*Soleil*/
-    [-6.4674481e-03, 2.9372684e-02, 2.9939160e-03],  # /*Mercure*/
-    [-1.2159929e-02, -1.6321487e-02, 4.7839154e-04],  # /*Venus*/
-    [-1.2606830e-02, 1.1932472e-02, -5.3326343e-07],  # /*Terre*/
-    [1.3851438e-02, 5.5002850e-03, -2.2479471e-04],  # /*Mars*/
-    [-7.1329432e-03, 3.0767709e-03, 1.4683761e-04],  # /*Jupiter*/
-    [2.7027945e-03, -4.7129500e-03, -2.5483556e-05],  # /*Saturn*/
-    [-4.9354675e-04, 3.7222065e-03, 2.0227673e-05],  # /*Uranus*/
-    [1.4527105e-03, 2.7901455e-03, -9.1342324e-05],  # /*Neptune*/
-    [3.1711953e-03, -1.4100225e-04, -9.0807325e-04]  # /*Pluto*/
+    [6.0453208e-06, -1.8980631e-06, -1.3060634e-07],  # Sun
+    [-6.4674481e-03, 2.9372684e-02, 2.9939160e-03],  # Mercury
+    [-1.2159929e-02, -1.6321487e-02, 4.7839154e-04],  # Venus
+    [-1.2606830e-02, 1.1932472e-02, -5.3326343e-07],  # Earth
+    [1.3851438e-02, 5.5002850e-03, -2.2479471e-04],  # Mars
+    [-7.1329432e-03, 3.0767709e-03, 1.4683761e-04],  # Jupiter
+    [2.7027945e-03, -4.7129500e-03, -2.5483556e-05],  # Saturn
+    [-4.9354675e-04, 3.7222065e-03, 2.0227673e-05],  # Uranus
+    [1.4527105e-03, 2.7901455e-03, -9.1342324e-05],  # Neptune
+    [3.1711953e-03, -1.4100225e-04, -9.0807325e-04]  # Pluto
 ]
-
-# Soleil
-psi_obs_Soleil = 0.  # Seulement dans un but de cohérence
-psi_th_Soleil = 0.
-
-# Mercure
-psi_obs_Mercure = 5.75
-psi_th_Mercure = 5.50
-
-# Venus
-psi_obs_Venus = 2.04
-psi_th_Venus = 10.75
-
-# Terre
-psi_obs_Terre = 11.45
-psi_th_Terre = 11.87
-
-# Mars
-psi_obs_Mars = 16.28
-psi_th_Mars = 17.60
-
-# Jupiter
-psi_obs_Jupiter = 6.55
-psi_th_Jupiter = 7.42
-
-# Saturn
-psi_obs_Saturn = 19.5
-psi_th_Saturn = 18.36
-
-# Uranus
-psi_obs_Uranus = 3.34
-psi_th_Uranus = 2.72
-
-# Neptune
-psi_obs_Neptune = 0.36
-psi_th_Neptune = 0.65
-
-# Pluton
-psi_obs_Pluton = 0.  # On ne sait pas
-psi_th_Pluton = 0.
-
-# TOTAL
-m_totale = 1.0000e00 + 1.6600e-7 + 2.4476e-6 + 3.0032e-6 + 3.2268e-7 + 9.5425e-4 + 2.8572e-4 + 4.3643e-5 + 5.1486e-5 + 6.6060e-9
