@@ -5,9 +5,9 @@ Numerical simulation of the solar system
 
 1. Create a conda environment with all the required packages using the following commands:
 
-> conda env create --file environment.yml
+`conda env create --file environment.yml`
 
-> conda activate solarsystem
+`conda activate solarsystem`
 
 2. Add your paths:
    * Rename `.env.sample` file to `.env`
@@ -15,4 +15,4 @@ Numerical simulation of the solar system
 
 3. Execute the main file
 
-> python main.py
+`python main.py`
