@@ -3,6 +3,7 @@ import pathlib as pl
 
 from data.raw import data as data
 from utils.utils import CelestialBody
+from utils.integrators import EulerIntegrator, LeapFrogIntegrator
 
 from dotenv import dotenv_values
 import numpy as np
@@ -32,45 +33,49 @@ def log_position(cb, lst):
     return 0
 
 
-def calculate_accelatation(cb, cb_all):
-    # create list that contains all objects except cb
-    other_cbs = [item for item in cb_all if item.name != cb.name]
+def create_energy_dfs(df):
+    # Define features
+    names = list(df.name.unique())
+    dfs = [df[df.name == u] for u in names]
 
-    # calculate the acceleration
-    a = [0., 0., 0.]
-    for other_cb in other_cbs:
-        diff = cb.position() - other_cb.position()
-        a += other_cb.mass / (np.linalg.norm(diff) * np.linalg.norm(diff)) * (diff / np.linalg.norm(diff))
+    # Kinetic energy
+    df_e_kin = pd.DataFrame()
+    for i, df_ in enumerate(dfs):
+        if i == 0:
+            df_e_kin = pd.DataFrame(df_.time.loc[:].copy(deep=True)).reset_index()
+            df_ = df_.reset_index()
+            df_e_kin[names[i]] = df_.e_kin
+            df_e_kin = df_e_kin[["time", names[i]]]
+        else:
+            df_ = df_.reset_index()
+            df_e_kin[names[i]] = df_.e_kin
 
-    a = - data.G * a
+    df_e_kin["e_kin"] = df_e_kin.sum(axis=1) - df_e_kin.time
 
-    # assign the results to the object
-    cb.x_acc = a[0]
-    cb.y_acc = a[1]
-    cb.z_acc = a[2]
+    # Potential energy
+    df_e_pot = pd.DataFrame()
+    for i, df_ in enumerate(dfs):
+        if i == 0:
+            df_e_pot = pd.DataFrame(df_.time.loc[:].copy(deep=True)).reset_index()
+            df_ = df_.reset_index()
+            df_e_pot[names[i]] = df_.e_pot
+            df_e_pot = df_e_pot[["time", names[i]]]
+        else:
+            df_ = df_.reset_index()
+            df_e_pot[names[i]] = df_.e_pot
 
-    return 0
+    df_e_pot["e_pot"] = df_e_pot.sum(axis=1) - df_e_pot.time
 
+    df_e_tot = df_e_kin.copy(deep=True)
+    df_e_tot = df_e_tot[["time", "e_kin"]]
+    df_e_tot["e_pot"] = df_e_pot["e_pot"]
+    df_e_tot["e_tot"] = df_e_tot["e_kin"] + df_e_tot["e_pot"]
+    print(df_e_tot)
 
-def integrate():
-    pass
-
-
-def calculate_new_velocity(cb, dt):
-    cb.x_deltav = cb.x_deltav + dt * cb.x_acc
-    cb.y_deltav = cb.y_deltav + dt * cb.y_acc
-    cb.z_deltav = cb.z_deltav + dt * cb.z_acc
-    return 0
-
-
-def calculate_new_position(cb, dt):
-    cb.x_pos = cb.x_pos + dt * cb.x_deltav
-    cb.y_pos = cb.y_pos + dt * cb.y_deltav
-    cb.z_pos = cb.z_pos + dt * cb.z_deltav
-    return 0
+    return df_e_kin, df_e_pot, df_e_tot
 
 
-def plot(df, config, export):
+def plot_position(df, config, export):
     import plotly.graph_objects as go
     # template = "simple_white"
     template = "plotly_dark"
@@ -89,7 +94,7 @@ def plot(df, config, export):
     for i, df_ in enumerate(dfs):
         # Add lines
         fig.add_trace(
-            go.Scattergl(x=df_.x_pos, y=df_.y_pos,
+            go.Scattergl(x=[i[0] for i in df_.position], y=[i[1] for i in df_.position],
                          mode='lines',
                          name=names[i],
                          line=dict(color=colours[i], dash="solid"),
@@ -101,7 +106,7 @@ def plot(df, config, export):
         df_ = df_.tail(1)
         size = df_.dummy_size
         fig.add_trace(
-            go.Scattergl(x=df_.x_pos, y=df_.y_pos,
+            go.Scattergl(x=[i[0] for i in df_.position], y=[i[1] for i in df_.position],
                          mode='markers',
                          name=names[i],
                          marker=dict(color=colours[i], size=size),
@@ -131,7 +136,8 @@ def animate(df, limiting_factor, config, export):
     df = df[df.name.isin(include)]
     range_lim = 1.4
     # create scatter plot
-    fig = px.scatter_3d(data_frame=df, x="x_pos", y="y_pos", z="z_pos",
+    fig = px.scatter_3d(data_frame=df,
+                        x=[i[0] for i in df.position], y=[i[1] for i in df.position], z=[i[2] for i in df.position],
                         animation_frame="time",
                         animation_group="name",
                         size="dummy_size",
@@ -154,6 +160,56 @@ def animate(df, limiting_factor, config, export):
     fig.show()
 
 
+def plot_energy(df, df_e_tot, config, export):
+    import plotly.graph_objects as go
+    # template = "simple_white"
+    template = "plotly_dark"
+    fig = go.Figure()
+    fig.update_layout(title="",
+                      xaxis_title="Time",
+                      yaxis_title="Kinetic Energy, Potential Energy, Total Energy",
+                      template=template)
+
+    # Define features
+    names = list(df.name.unique())
+    colours = list(df.colour.unique())
+    dfs = [df[df.name == u] for u in names]
+
+    # Total Energy
+    fig.add_trace(
+        go.Scattergl(x=df_e_tot["time"], y=df_e_tot["e_tot"],
+                     mode="lines",
+                     name="Total Energy",
+                     line=dict(color=colours[0], dash="solid"),
+                     # showlegend=False
+                     ))
+
+    # Kinetic Energy
+    fig.add_trace(
+        go.Scattergl(x=df_e_tot["time"], y=df_e_tot["e_kin"],
+                     mode="lines",
+                     name="Kinetic Energy",
+                     line=dict(color=colours[1], dash="solid"),
+                     # showlegend=False
+                     ))
+
+    # Potential Energy
+    fig.add_trace(
+        go.Scattergl(x=df_e_tot["time"], y=df_e_tot["e_pot"],
+                     mode="lines",
+                     name="Potential Energy",
+                     line=dict(color=colours[2], dash="solid"),
+                     # showlegend=False
+                     ))
+    if export:
+        path_out = pl.Path(config["path_out"], "plot_energy.html")
+        path_out.parent.mkdir(exist_ok=True)
+        fig.write_html(str(path_out))
+
+    fig.show()
+    return 0
+
+
 def main():
     # init
     pandas_wide()
@@ -168,9 +224,10 @@ def main():
             data.mass[i],
             data.dummy_sizes[i],
             data.colour[i],
-            data.position[i][0], data.position[i][1], data.position[i][2],
-            data.deltav[i][0], data.deltav[i][1], data.deltav[i][2],
-            0., 0., 0.
+            np.array([data.position[i][0], data.position[i][1], data.position[i][2]]),
+            np.array([data.velocity[i][0], data.velocity[i][1], data.velocity[i][2]]),
+            np.array([0., 0., 0.]),
+            np.array([0., 0., 0.]),
         )
 
         cbs.append(globals()[data.names[i]])
@@ -178,23 +235,46 @@ def main():
 
     show_df(cb_list)
 
+    # chose an integrator
+    # integrator = EulerIntegrator()
+    integrator = LeapFrogIntegrator()
+
     lst = []
     dt = 0.25
-    for time in np.arange(0, 100, dt):
+    for time in np.arange(0, 100_000, dt):
+
+        # print time to console
+        if np.mod(time, 200) == 0:
+            print(f"time \t\t {time}")
+
+        # loop over all celestial bodies cb
         for cb in cbs:
-            calculate_accelatation(cb, cbs)
-            calculate_new_velocity(cb, dt)
-            calculate_new_position(cb, dt)
+            # integrate
+            integrator.calculate_acceleration(cb, cbs)
+            integrator.calculate_velocity(cb, dt)
+            integrator.calculate_position(cb, dt)
+
+            # get time
             cb.time = time
+
+            # calculate energy
+            cb.e_kin = cb.get_kinetic_energy()
+            cb.e_pot = cb.get_potential_energy()
+            cb.total_energy = cb.e_kin + cb.e_pot
+
+            # log the current state
             log_position(cb, lst)
 
     df = pd.DataFrame(lst)
     print(3 * "\n", df)
 
     # plotting options
-    plot(df, config=config, export=True)
-    animate(df, 0.25, config=config, export=True)
+    export = True
+    plot_position(df, config=config, export=export)
+    animate(df, 0.25, config=config, export=export)
 
+    df_e_kin, df_e_pot, df_e_tot = create_energy_dfs(df)
+    plot_energy(df, df_e_tot, config=config, export=export)
     return 0
 
 

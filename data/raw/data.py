@@ -31,7 +31,7 @@ position = [
 ]
 
 # the velocity [v_x, v_y, v_z] of the individual celestial bodies
-deltav = [
+velocity = [
     [6.0453208e-06, -1.8980631e-06, -1.3060634e-07],  # Sun
     [-6.4674481e-03, 2.9372684e-02, 2.9939160e-03],  # Mercury
     [-1.2159929e-02, -1.6321487e-02, 4.7839154e-04],  # Venus
