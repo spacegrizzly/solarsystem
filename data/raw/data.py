@@ -9,7 +9,7 @@ mass = [1.0000e00, 1.6600e-7, 2.4476e-6, 3.0032e-6, 3.2268e-7, 9.5425e-4, 2.8572
 # dummy sizes for plotting
 dummy_sizes = [25, 7, 7, 7, 7, 7, 7, 7, 7, 7]
 
-# the colours of the individual celestial bodies
+# the colours of the individual celestial bodies as hexadecimal values
 colour = ["#fffd37", "#acc2d9", "#f0833a", "#03719c", "#fdaa48",
           "#e2ca76", "#ffa756", "#d0fefe", "#069af3", "#ffd8b1"]
 

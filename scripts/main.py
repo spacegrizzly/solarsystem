@@ -34,6 +34,12 @@ def log_position(cb, lst):
 
 
 def create_energy_dfs(df):
+    """
+    Extract the cumulative information of the system energy from the log of the simulation
+
+    @param df: pd.DataFrame, logged time-development of the celestial bodies
+    @return: 3 pd.DatFrames, for the kin. energy, the pot. energy and the total energy
+    """
     # Define features
     names = list(df.name.unique())
     dfs = [df[df.name == u] for u in names]
@@ -66,6 +72,7 @@ def create_energy_dfs(df):
 
     df_e_pot["e_pot"] = df_e_pot.sum(axis=1) - df_e_pot.time
 
+    # Total Energy
     df_e_tot = df_e_kin.copy(deep=True)
     df_e_tot = df_e_tot[["time", "e_kin"]]
     df_e_tot["e_pot"] = df_e_pot["e_pot"]
@@ -162,7 +169,6 @@ def animate(df, limiting_factor, config, export):
 
 def plot_energy(df, df_e_tot, config, export):
     import plotly.graph_objects as go
-    # template = "simple_white"
     template = "plotly_dark"
     fig = go.Figure()
     fig.update_layout(title="",

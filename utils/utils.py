@@ -4,8 +4,8 @@ from data.raw import data as data
 
 class CelestialBody:
     """
-    Create a class "CelestialBody" that contains physical properties such as the mass, position, velocity and
-    acceleration of the object
+    Create an instance of the class "CelestialBody" that contains physical properties such as the mass, position,
+    velocity and acceleration, as well as energy information of the object
     """
 
     def __init__(self, name: str, mass: str, dummy_size: float, colour: str,
@@ -39,10 +39,13 @@ class CelestialBody:
     def hello(self):
         return f"Hello, {self.name} :)"
 
-    def get_kinetic_energy(self):
+    def get_kinetic_energy(self) -> float:
+        """
+        Calculate the kinetic energy of the celestial body
+        """
         e_kin = self.mass * self.velocity.dot(self.velocity) / 2.
         return e_kin
 
-    def get_potential_energy(self):
+    def get_potential_energy(self) -> float:
         e_pot = - data.G * self.mass * (np.sum(data.mass) - self.mass) / np.linalg.norm(self.position)
         return e_pot
