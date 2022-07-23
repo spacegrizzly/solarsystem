@@ -37,8 +37,8 @@ def create_energy_dfs(df):
     """
     Extract the cumulative information of the system energy from the log of the simulation
 
-    @param df: pd.DataFrame, logged time-development of the celestial bodies
-    @return: 3 pd.DatFrames, for the kin. energy, the pot. energy and the total energy
+    :param df: pd.DataFrame, logged time-development of the celestial bodies
+    :return: 3 pd.DatFrames, for the kin. energy, the pot. energy and the total energy
     """
     # Define features
     names = list(df.name.unique())
