@@ -260,12 +260,19 @@ def main():
     integrator = LeapFrogIntegrator()
 
     lst = []
+    tmax = 100_000
     dt = 0.25
-    for time in np.arange(0, 100_000, dt):
+
+    import progressbar
+    bar = progressbar.ProgressBar(maxval=tmax, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar.start()
+
+    for time in np.arange(0, tmax, dt):
 
         # print time to console
         if np.mod(time, 200) == 0:
-            print(f"time \t\t {time}")
+            # print(f"time \t\t {time}")
+            bar.update(time)
 
         # loop over all celestial bodies cb
         for cb in cbs:
@@ -295,6 +302,8 @@ def main():
 
     df_e_kin, df_e_pot, df_e_tot = create_energy_dfs(df)
     plot_energy(df, df_e_tot, config=config, export=export)
+
+    bar.finish()
     return 0
 
 
