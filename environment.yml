@@ -5,7 +5,6 @@ dependencies:
   - blas=1.0
   - ca-certificates=2021.4.13
   - certifi=2020.12.5
-  - icc_rt=2019.0.0
   - intel-openmp=2021.2.0
   - mkl=2021.2.0
   - mkl-service=2.3.0
@@ -26,10 +25,7 @@ dependencies:
   - six=1.15.0
   - sqlite=3.35.4
   - tzdata=2020f
-  - vc=14.2
-  - vs2015_runtime=14.27.29016
   - wheel=0.36.2
-  - wincertstore=0.2
   - pip:
     - python-dotenv==0.17.1
 prefix: C:\Users\Chris\Anaconda3\envs\solarsystem
