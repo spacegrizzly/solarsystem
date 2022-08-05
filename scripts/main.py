@@ -1,3 +1,17 @@
+"""
+This script simulates our solar system numerically, by calculating the forces on each celestial body (cb) and then
+calculating the velocity and finally the position of each object.
+
+Input:
+    * Init data from `data.py`
+
+Output:
+    * One 2D plot of the entire data that is calculated which is both displayed in a browser and also exported to the
+         hard-drive
+    * One animated 3D plot of a part of the data displayed in the browser, as well as an export to the hard-drive
+"""
+
+
 import copy
 import pathlib as pl
 
