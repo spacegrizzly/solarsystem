@@ -15,13 +15,14 @@ Output:
 import copy
 import pathlib as pl
 
-from data.raw import data as data
-from utils.utils import CelestialBody
-from utils.integrators import EulerIntegrator, LeapFrogIntegrator
-
 from dotenv import dotenv_values
 import numpy as np
 import pandas as pd
+import progressbar
+
+from data.raw import data as data
+from utils.utils import CelestialBody
+from utils.integrators import EulerIntegrator, LeapFrogIntegrator
 
 
 def pandas_wide():
@@ -263,14 +264,14 @@ def main():
     tmax = 100_000
     dt = 0.25
 
-    import progressbar
+    print("\n\nStarting simulation...")
     bar = progressbar.ProgressBar(maxval=tmax, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
 
     for time in np.arange(0, tmax, dt):
 
         # print time to console
-        if np.mod(time, 200) == 0:
+        if np.mod(time, tmax/100) == 0:
             # print(f"time \t\t {time}")
             bar.update(time)
 
