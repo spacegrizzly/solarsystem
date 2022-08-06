@@ -12,8 +12,11 @@ Numerical simulation of the solar system
    * Rename `.env.sample` file to `.env`
    * Within the new file, replace the dummy path with your local path to export the graphics
 
-3. Make sure the PYTHONPATH variable is set to your working directory
+3. Make sure the PYTHONPATH variable is set to your working directory  
+       Windows:
+
        set PYTHONPATH="_yourpath_\solarsystem"
 
 4. Execute the main file
+
        python scripts/main.py
