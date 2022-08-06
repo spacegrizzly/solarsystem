@@ -15,7 +15,7 @@ Numerical simulation of the solar system
 3. Make sure the PYTHONPATH variable is set to your working directory  
        Windows:
 
-       set PYTHONPATH="_yourpath_\solarsystem"
+       set "PYTHONPATH=C:\path\to\folder\solarsystem"
 
 4. Execute the main file
 
